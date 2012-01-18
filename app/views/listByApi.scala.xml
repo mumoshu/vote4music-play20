@@ -1,0 +1,15 @@
+@(albums: List[models.Album])
+
+<albums>
+    @albums.map { album =>
+    <album>
+        <id>@album.id</id>
+        <name>@album.name</name>
+        <artist>@album.artist</artist>
+        <releaseDate>@album.releaseDate</releaseDate>
+        <genre>@album.genre</genre>
+        <nbVote>@album.nbVote</nbVote>
+        <hasCover>@album.hasCover</hasCover>
+    </album>
+    }
+</albums>

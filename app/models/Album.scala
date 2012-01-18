@@ -3,13 +3,15 @@ package models
 import play.api.mvc._
 import play.api.db._
 import play.api.Play.current
+import play.api.libs.json._
+import play.api.libs.json.Generic._
 
 import anorm._
 import anorm.SqlParser._
-import java.text.SimpleDateFormat
 import java.util.Date
 
 import Genre._
+import java.text.SimpleDateFormat
 
 case class Album(id: Pk[Long], name: String, artist: Long, releaseDate: Date, genre: Genre, nbVote: Long = 0, hasCover: Boolean = false) {
 
@@ -22,9 +24,33 @@ case class Album(id: Pk[Long], name: String, artist: Long, releaseDate: Date, ge
 }
 
 object Album {
-
-  val formatYear = new SimpleDateFormat("yyyy")
   
+  val formatYear = new SimpleDateFormat("yyyy")
+
+  def findById(id: Long): Option[Album] = DB.withConnection { implicit connection =>
+    SQL(
+      "select * from album where id = {id}"
+    ).on(
+      'id -> id
+    ).as(Album.simple.singleOpt)
+  }
+
+  def findByGenre(genre: Genre): List[Album] = DB.withConnection { implicit connection =>
+    SQL(
+      "select * from album where genre = {genre}"
+    ).on(
+      'genre -> genre.id
+    ).as(Album.simple *)
+  }
+  
+  def delete(album: Album) = DB.withConnection { implicit connection =>
+    SQL(
+      "delete from album where id = {id}"
+    ).on(
+      'id -> album.id
+    ).executeUpdate()
+  }
+
   def findByName(name: String): Option[Album] = DB.withConnection { implicit connection =>
     SQL(
       "select * from album where name = {name}"
@@ -123,4 +149,35 @@ object Album {
       )
     }
   }
+}
+
+object AlbumFormat {
+
+  implicit val pkLongFormat = new Format[Pk[Long]] {
+    def reads(json: JsValue) = json match {
+      case JsNumber(num) => Id(num.longValue)
+    }
+
+    def writes(o: Pk[Long]) = JsNumber(o.get)
+  }
+  
+  implicit val dateFormat = new Format[java.util.Date] {
+    val f = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+
+    def reads(json: JsValue) = json match {
+      case JsString(str) => f.parse(str)
+    }
+
+    def writes(o: Date) = JsString(f.format(o))
+  }
+  
+  implicit val genreFormat = new Format[Genre] {
+    def reads(json: JsValue) = json match {
+      case JsNumber(num) => Genre(num.toInt)
+    }
+
+    def writes(o: Genre.Genre) = JsNumber(o.id)
+  }
+
+  implicit val albumFormat = productFormat7("id", "name", "artist", "releaseDate", "genre", "nbVote", "hasCover")(Album.apply)(Album.unapply)
 }
