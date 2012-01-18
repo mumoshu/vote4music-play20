@@ -5,7 +5,7 @@ import play.api.mvc._
 import models.Album
 
 object Admin extends Controller {
-  
+
   def login = Action {
     Redirect(routes.Application.list)
     Ok("")

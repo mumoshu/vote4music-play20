@@ -5,6 +5,10 @@
 # Home page
 GET     /                           controllers.Application.index()
 
+GET     /login                      controllers.Application.login()
+
+POST    /login                      controllers.Application.doLogin()
+
 GET     /list                       controllers.Application.list()
 
 GET     /search                     controllers.Application.search(filter)
