@@ -31,7 +31,7 @@ object Application extends Controller {
     Ok(views.html.listByGenreAndYear(genre, year, albums))
   }
   
-  def listByApi(genre: Option[Int],  year: Option[String]) = Action { implicit request =>
+  def listByApi(genre: Option[Int],  year: Option[String], format: String) = Action { implicit request =>
     val albums = genre.map { g =>
       Album.findByGenre(Genre(g))
     }.getOrElse(
@@ -42,9 +42,9 @@ object Application extends Controller {
     }.getOrElse(
       albums
     )
-    request.contentType match {
-      case Some(t) if t == ContentTypes.JSON => Ok(toJson(albums))
-      case Some(t) if t == ContentTypes.XML => Ok(views.xml.listByApi(albums))
+    format match {
+      case "json" => Ok(toJson(albums))
+      case "xml" => Ok(views.xml.listByApi(albums))
     }
   }
   

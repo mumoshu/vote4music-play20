@@ -81,17 +81,22 @@ object Album {
   def findAll(): List[Album] = DB.withConnection { implicit connection =>
     SQL("select * from album").as(Album.simple *)
   }
+
+  implicit val genreToStatement = new ToStatement[Genre] {
+    def set(s: java.sql.PreparedStatement, index: Int, aValue: Genre): Unit = s.setInt(index, aValue.id)
+  }
   
   def create(album: Album): Album = DB.withConnection { implicit connection =>
 
     val id: Long = album.id.getOrElse {
-      SQL("select next value from album_seq").as(scalar[Long].single)
+      SQL("select next value for album_seq").as(scalar[Long].single)
     }
 
     SQL(
       """
         insert into album values (
           {id}, {name}, {artist}, {releaseDate}, {genre}, {nbVote}, {hasCover}
+        )
       """
     ).on(
       'id -> id,

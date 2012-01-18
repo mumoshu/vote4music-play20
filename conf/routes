@@ -11,5 +11,7 @@ GET     /search                     controllers.Application.search(filter)
 
 GET     /listByGenreAndYear         controllers.Application.listByGenreAndYear(genre: Int, year)
 
+GET     /listByApi.$format<json|xml> controllers.Application.listByApi(genre: Option[Int], year: Option[String], format)
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

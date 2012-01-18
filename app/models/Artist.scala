@@ -27,13 +27,14 @@ object Artist {
   def create(artist: Artist): Artist = DB.withConnection { implicit connection =>
     
     val id: Long = artist.id.getOrElse {
-      SQL("select next value from artist_seq").as(scalar[Long].single)
+      SQL("select next value for artist_seq").as(scalar[Long].single)
     }
     
     SQL(
       """
         insert into artist values (
           {id}, {name}
+        )
       """
     ).on(
       'id -> id,

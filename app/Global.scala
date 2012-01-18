@@ -15,7 +15,7 @@ object Global extends GlobalSettings {
       def date(str: String): Date = dateFormat.parse(str)
       Seq(
         Album(Id(1), "coolAlbum", 1, date("2011-11-12 00:00:00"), Genre.Rock),
-        Album(Id(1), "superAlbum", 1, date("2011-10-09 00:00:00"), Genre.Rock)
+        Album(Id(2), "superAlbum", 1, date("2011-10-09 00:00:00"), Genre.Rock)
       ).foreach(Album.create)
       
       Seq(
