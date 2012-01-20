@@ -15,9 +15,11 @@ import models.AlbumFormat._
 import java.util.Date
 
 object Application extends Controller {
-  
+
+  import forms._
+
   def index = Action {
-    Ok(views.html.index("Your new application is ready."))
+    Ok(views.html.index(getYearsToDisplay))
   }
   
   def list = Action {
@@ -30,9 +32,16 @@ object Application extends Controller {
     Ok(views.html.list(albums))
   }
   
-  def listByGenreAndYear(genre: Int, year: String) = Action {
-    val albums = Album.findByGenreAndYear(Genre(genre), year)
-    Ok(views.html.listByGenreAndYear(genre, year, albums))
+  def listByGenreAndYear() = Action { implicit request =>
+    genreAndYearForm.bindFromRequest.fold(
+      { form =>
+        BadRequest(views.html.index(getYearsToDisplay()))
+      },
+      { case (genre, year) =>
+        val albums = Album.findByGenreAndYear(Genre(genre), year)
+        Ok(views.html.listByGenreAndYear(genre, year, albums))
+      }
+    )
   }
   
   def listByApi(genre: Option[Int],  year: Option[String], format: String) = Action { implicit request =>
@@ -64,8 +73,6 @@ object Application extends Controller {
       Ok(views.xml.listArtistsByApi(artists))
   }
   
-  import forms._
-
   /**
    * Create album
    */
@@ -75,10 +82,6 @@ object Application extends Controller {
 
   /**
    * Create or update album
-   *
-   * @param album
-   * @param artist
-   * @param cover
    */
   def save() = Action { implicit request =>
     albumForm.bindFromRequest.fold(
@@ -108,6 +111,13 @@ object Application extends Controller {
     )
 
     
+  }
+
+  /**
+   * Years to display for top albums form
+   */
+  def getYearsToDisplay(): List[Int] = {
+    (Album.getFirstAlbumYear to Album.getLastAlbumYear).reverse.toList
   }
 
   def login = Action {

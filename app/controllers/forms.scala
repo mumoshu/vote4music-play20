@@ -12,8 +12,15 @@ import formats._
 import java.util.Date
 
 object forms {
+  
+  val genreAndYearForm = Form(
+    of(
+      "genre" -> number(min = 0, max = Genre.maxId),
+      "year" -> text(minLength = 4, maxLength = 4)
+    )
+  )
 
-  def albumForm = Form(
+  val albumForm = Form(
     of(
       "cover" -> text,
       "album" -> of(Album.apply _, Album.unapply _)(

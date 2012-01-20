@@ -1,0 +1,10 @@
+@(artists: List[models.Artist])
+
+<artists>
+    @artists.map { artist =>
+        <artist>
+            <id>@artist.id</id>
+            <name>@artist.name</name>
+        </artist>
+    }
+</artists>
