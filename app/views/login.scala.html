@@ -1,7 +1,7 @@
 @(form: Form[(String, String)])
 
 @main("Login") {
-    <form action="@routes.Application.doLogin" method="POST">
+    <form action="@routes.Secure.doLogin" method="POST">
         @form.globalError.map { error =>
             <p class="error">
                 @error.message

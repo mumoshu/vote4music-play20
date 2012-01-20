@@ -1,31 +1,49 @@
-@(albumForm: Form[(String, models.Album, models.Artist)])
+@(albumForm: Form[(models.Album, models.Artist)])
 
-@main("Album form") {
+@import play.api.i18n.Messages
+
+@moreScripts = {
+<script>
+
+    $(function(){
+        // those stuff needs to be wrapped in a dom-ready callback. (same as $(document).ready)
+        $("#releaseDate").datepicker({dateFormat:'yy-mm-dd', showAnim:'fadeIn'});
+    });
+</script>
+}
+
+@main("Album form", moreScripts = moreScripts) {
     <h1>Please write information about your favorite album</h1>
     @helper.form(action = routes.Application.save) {
 
-    <input type="hidden" name="id" value="@albumForm("id").value"/>
+    @albumForm.forField("album.id") { field =>
+        <input type="hidden" name="@field.name" value="@field.value"/>
+    }
+
+    @albumForm.globalErrors.map { error =>
+        <span class="error">@Messages(error.message)</span>
+    }
 
     <p class="field">
-        @albumForm.forField("name") { field =>
+        @albumForm.forField("album.name") { field =>
             <label for="@field.name">Album Name:</label>
             <input type="text" name="@field.name" id="@field.name" value="@field.value">
             @field.error.map { error =>
-                <span class="error">@error</span>
+                <span class="error">@Messages(error.message)</span>
             }
         }
     </p>
     <p class="field">
-        @albumForm.forField("artist") { field =>
+        @albumForm.forField("artist.name") { field =>
             <label for="@field.name">Artist:</label>
             <input type="text" name="@field.name" id="@field.name" value="@field.value">
             @field.error.map { error =>
-                <span class="error">@error</span>
+                <span class="error">@Messages(error.message)</span>
             }
         }
     </p>
     <p class="field">
-        @albumForm.forField("genre") { field =>
+        @albumForm.forField("album.genre") { field =>
             <label for="@field.name">Genre:</label>
             <select id="@field.name" name="@field.name">
                 @models.Genre.values.map { genre =>
@@ -37,16 +55,16 @@
                 }
             </select>
             @field.error.map { error =>
-                <span class="error">@error</span>
+                <span class="error">@Messages(error.message)</span>
             }
         }
     </p>
     <p class="field">
-        @albumForm.forField("releaseDate") { field =>
+        @albumForm.forField("album.releaseDate") { field =>
             <label for="@field.name">Release date</label>
             <input type="text" name="@field.name" id="@field.name" value="@field.value">
             @field.error.map { error =>
-                <span class="error">@error</span>
+                <span class="error">@Messages(error.message)</span>
             }
         }
     </p>
@@ -67,12 +85,4 @@
     </p>
 
     }
-
-    <script>
-
-        $(function(){
-            // those stuff needs to be wrapped in a dom-ready callback. (same as $(document).ready)
-            $("#releaseDate").datepicker({dateFormat:'yy-mm-dd', showAnim:'fadeIn'});
-        });
-    </script>
 }

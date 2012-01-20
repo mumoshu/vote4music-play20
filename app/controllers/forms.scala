@@ -22,7 +22,7 @@ object forms {
 
   val albumForm = Form(
     of(
-      "cover" -> text,
+//      "cover" -> text,
       "album" -> of(Album.apply _, Album.unapply _)(
         "id" -> of[anorm.Pk[Long]],
         "name" -> text,

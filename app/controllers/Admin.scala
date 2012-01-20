@@ -34,7 +34,7 @@ object Admin extends Controller with Secured {
   
   def form(id: Long) = IsAuthenticated { username => { request =>
     Album.findById(id).map { album =>
-      Ok(views.html.form(albumForm.fill("", album, null)))
+      Ok(views.html.form(albumForm.fill(album, null)))
     }.getOrElse(NotFound)
   }}
 

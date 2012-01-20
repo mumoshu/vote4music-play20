@@ -85,19 +85,22 @@ object Application extends Controller {
    */
   def save() = Action { implicit request =>
     albumForm.bindFromRequest.fold(
-      form => Ok(views.html.form(form)),
-      { case (cover, album, artist) =>
+      { form =>
+        Logger.debug("error form = %s".format(form))
+        Ok(views.html.form(form))
+      },
+      { case (album, artist) =>
         request.body.asMultipartFormData.map { data =>
           // replace duplicate artist
           val artistId = Artist.findByName(artist.name).getOrElse(Artist.create(artist)).id.get
           // album cover
-          data.file("cover").map { coverFile =>
+          data.file("cover").map { cover =>
             val path = "/public/shared/covers/" + album.id
             val newFile = Play.getFile(path)
             //delete old cover if exists
             if (newFile.exists())
               newFile.delete()
-            coverFile.ref.file.renameTo(newFile)
+            cover.ref.file.renameTo(newFile)
   
             album.copy(hasCover = true)
           }.orElse(Some(album))
@@ -120,15 +123,4 @@ object Application extends Controller {
     (Album.getFirstAlbumYear to Album.getLastAlbumYear).reverse.toList
   }
 
-  def login = Action {
-    Ok(views.html.login(loginForm))
-  }
-
-  def doLogin = Action { implicit request =>
-    loginForm.bindFromRequest.fold(
-      formWithError => BadRequest(views.html.login(formWithError)),
-      user => Redirect(routes.Application.list).withSession("username" -> user._1)
-    )
-  }
-  
 }

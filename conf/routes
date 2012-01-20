@@ -5,19 +5,18 @@
 # Home page
 GET     /                           controllers.Application.index()
 
-GET     /login                      controllers.Application.login()
+GET     /admin/login                controllers.Secure.login()
+POST    /admin/login                controllers.Secure.doLogin()
+GET     /admin/logout               controllers.Secure.logout()
 
-POST    /login                      controllers.Application.doLogin()
-
-GET     /list                       controllers.Application.list()
-
+POST    /album                      controllers.Application.save()
+GET     /albums                     controllers.Application.list()
 GET     /search                     controllers.Application.search(filter)
-
-GET     /listByGenreAndYear         controllers.Application.listByGenreAndYear()
+GET     /topalbums                  controllers.Application.listByGenreAndYear()
+GET     /album/new                  controllers.Application.form()
+GET     /album/:id                  controllers.Admin.form(id: Long)
 
 GET     /listByApi.$format<json|xml> controllers.Application.listByApi(genre: Option[Int], year: Option[String], format)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
-
-POST    /save                       controllers.Application.save()

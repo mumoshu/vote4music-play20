@@ -29,9 +29,10 @@ package object formats {
     override val format = Some("format.numeric", Nil)
 
     def bind(key: String, data: Map[String, String]) = {
-      longFormat.bind(key, data).right.map {
-        i =>
-          Id(i)
+      stringFormat.bind(key, data).right.map {
+        str =>
+          scala.util.control.Exception.allCatch[Pk[Long]].opt(Id(str.toLong))
+            .getOrElse(anorm.NotAssigned)
       }
     }
 

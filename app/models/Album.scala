@@ -143,7 +143,7 @@ object Album {
   
   def getLastAlbumYear: Int = DB.withConnection { implicit connection =>
     SQL(
-      "select miin(a.releaseDate) from Album a"
+      "select min(a.releaseDate) from Album a"
     ).as(
       scalar[Date].singleOpt
     ).orElse(
