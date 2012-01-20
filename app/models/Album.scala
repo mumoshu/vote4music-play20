@@ -111,6 +111,26 @@ object Album {
     album.copy(id = Id(id))
   }
   
+  def save(album: Album): Album = DB.withConnection { implicit connection =>
+    SQL(
+      """
+        update album
+        set name = {name}, artist = {artist}, releaseDate = {releaseDate}, genre = {genre}, nbVote = {nbVote}, hasCover = {hasCover}
+        where id = {id}
+      """
+    ).on(
+      'id -> album.id,
+      'name -> album.name,
+      'artist -> album.artist,
+      'releaseDate -> album.releaseDate,
+      'genre -> album.genre,
+      'nbVote -> album.nbVote,
+      'hasCover -> album.hashCode
+    ).executeUpdate()
+
+    album
+  }
+  
   def getFirstAlbumYear: Int = DB.withConnection { implicit connection =>
     SQL(
       "select max(a.releaseDate) from Album a"
@@ -158,31 +178,7 @@ object Album {
 
 object AlbumFormat {
 
-  implicit val pkLongFormat = new Format[Pk[Long]] {
-    def reads(json: JsValue) = json match {
-      case JsNumber(num) => Id(num.longValue)
-    }
-
-    def writes(o: Pk[Long]) = JsNumber(o.get)
-  }
-  
-  implicit val dateFormat = new Format[java.util.Date] {
-    val f = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-
-    def reads(json: JsValue) = json match {
-      case JsString(str) => f.parse(str)
-    }
-
-    def writes(o: Date) = JsString(f.format(o))
-  }
-  
-  implicit val genreFormat = new Format[Genre] {
-    def reads(json: JsValue) = json match {
-      case JsNumber(num) => Genre(num.toInt)
-    }
-
-    def writes(o: Genre.Genre) = JsNumber(o.id)
-  }
+  import JsonFormats._
 
   implicit val albumFormat = productFormat7("id", "name", "artist", "releaseDate", "genre", "nbVote", "hasCover")(Album.apply)(Album.unapply)
 }

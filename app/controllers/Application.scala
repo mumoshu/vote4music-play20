@@ -9,8 +9,10 @@ import play.api.libs.json.Reads._
 import play.api.libs.json.Writes._
 import play.api.Play.current
 
-import models.{Genre, Album}
+import models.{Genre, Album, Artist}
 import models.AlbumFormat._
+
+import java.util.Date
 
 object Application extends Controller {
   
@@ -50,14 +52,63 @@ object Application extends Controller {
     }
   }
 
-  val loginForm = Form(
-  of(
-  "username" -> text,
-  "password" -> text
-  ) verifying ("Invalid username or password", result => result match {
-    case (username, password) => username == Play.configuration.getString("application.admin") && password == Play.configuration.getString("application.adminpwd")
-  })
-  )
+  /**
+   * List artists in xml or json format
+   */
+  def listArtistsByApi(format: String) = Action {
+    import Artist._
+    val artists = Artist.findAll()
+    if (format == "json")
+        Ok(toJson(artists))
+    else
+      Ok(views.xml.listArtistsByApi(artists))
+  }
+  
+  import forms._
+
+  /**
+   * Create album
+   */
+  def form() = Action {
+    Ok(views.html.form(albumForm))
+  }
+
+  /**
+   * Create or update album
+   *
+   * @param album
+   * @param artist
+   * @param cover
+   */
+  def save() = Action { implicit request =>
+    albumForm.bindFromRequest.fold(
+      form => Ok(views.html.form(form)),
+      { case (cover, album, artist) =>
+        request.body.asMultipartFormData.map { data =>
+          // replace duplicate artist
+          val artistId = Artist.findByName(artist.name).getOrElse(Artist.create(artist)).id.get
+          // album cover
+          data.file("cover").map { coverFile =>
+            val path = "/public/shared/covers/" + album.id
+            val newFile = Play.getFile(path)
+            //delete old cover if exists
+            if (newFile.exists())
+              newFile.delete()
+            coverFile.ref.file.renameTo(newFile)
+  
+            album.copy(hasCover = true)
+          }.orElse(Some(album))
+            .map(_.copy(artist = artistId))
+            .map(Album.save)
+        }
+
+        //return to album list
+        Redirect(routes.Application.list)
+      }
+    )
+
+    
+  }
 
   def login = Action {
     Ok(views.html.login(loginForm))
