@@ -10,7 +10,7 @@ import models._
 
 object Admin extends Controller with Secured {
 
-  def login = Action {
+  def login() = Action {
     Redirect(routes.Application.list)
   }
 

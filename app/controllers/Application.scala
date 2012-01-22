@@ -14,21 +14,21 @@ import models.AlbumFormat._
 
 import java.util.Date
 
-object Application extends Controller {
+object Application extends Controller with Secured {
 
   import forms._
 
-  def index = Action {
+  def index() = Action {
     Ok(views.html.index(getYearsToDisplay))
   }
   
-  def list = Action {
-    val albums = Album.findAll
+  def list = MayAuthenticated { implicit user =>
+    val albums = Album.findAllWithArtists
     Ok(views.html.list(albums))
   }
   
-  def search(filter: String) = Action {
-    val albums = Album.findAll(filter)
+  def search(filter: Option[String]) = Action {
+    val albums = filter.map(Album.findAllWithArtists _).getOrElse(Album.findAllWithArtists)
     Ok(views.html.list(albums))
   }
   

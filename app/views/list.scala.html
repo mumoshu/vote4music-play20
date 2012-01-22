@@ -1,12 +1,17 @@
-@(albums: List[models.Album])
+@(albums: List[(Album, Artist)])(implicit user: Option[User] = None)
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-        "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-  <title></title>
-</head>
-<body>
+@main("") {
+    <h1>Album list</h1>
+    <form action="@routes.Application.search()">
+    <input type="text" id="filter" class="vm-table-filter-input" name="filter"/>
+    <input type="submit" value="Search albums" class="button" id="submitFilter">
+    </form>
 
-</body>
-</html>
+    <!-- Album table -->
+    @tags.albumtable(albums)
+
+    <ul class="buttons">
+        <a href="/" class="button">Back</a>
+        <a href="/album/new" class="button">New album</a>
+    </ul>
+}

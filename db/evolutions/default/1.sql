@@ -6,7 +6,7 @@ create table album (
   artist         bigint not null,
   releaseDate    timestamp not null,
   genre          int not null,
-  nbVote         int not null,
+  nbVotes        int not null,
   hasCover       bool not null
 );
 

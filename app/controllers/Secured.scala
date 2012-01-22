@@ -23,5 +23,15 @@ trait Secured {
   def IsAuthenticated(f: => String => Request[AnyContent] => Result) = Security.Authenticated(username, onUnauthorized) { user =>
     Action(request => f(user)(request))
   }
+  
+  def MayAuthenticated(f: Option[models.User] => Result): Action[AnyContent] = Action { request =>
+    val user = username(request).map(models.User.apply _)
+    f(user)
+  }
+  
+  def MayAuthenticated(f: (Request[AnyContent], Option[models.User]) => Result): Action[AnyContent] = Action { request =>
+    val user = username(request).map(models.User.apply _)
+    f(request, user)
+  }
 
 }

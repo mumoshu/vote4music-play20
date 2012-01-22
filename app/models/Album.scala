@@ -13,11 +13,11 @@ import java.util.Date
 import Genre._
 import java.text.SimpleDateFormat
 
-case class Album(id: Pk[Long], name: String, artist: Long, releaseDate: Date, genre: Genre, nbVote: Long = 0, hasCover: Boolean = false) {
+case class Album(id: Pk[Long], name: String, artist: Long, releaseDate: Date, genre: Genre, nbVotes: Long = 0, hasCover: Boolean = false) {
 
   def copyReplacingArtist(artist: Artist): Album = copy(artist = artist.id.get)
   
-  def copyVoted: Album = copy(nbVote = nbVote + 1)
+  def copyVoted: Album = copy(nbVotes = nbVotes + 1)
   
   def releaseYear: String = Album.formatYear.format(releaseDate)
   
@@ -61,7 +61,7 @@ object Album {
   
   def findByGenreAndYear(genre: Genre, year: String): List[Album] = DB.withConnection { implicit connection =>
     SQL(
-      "select * from album where genre = {genre} order by nbVote desc"
+      "select * from album where genre = {genre} order by nbVotes desc"
     ).on(
       'genre -> genre
     ).as(
@@ -71,15 +71,35 @@ object Album {
   
   def findAll(name: String): List[Album] = DB.withConnection { implicit connection =>
     SQL(
-      "select * from album where name like %{name}% limit {limit}"
+      "select * from album where name like {name} limit {limit}"
     ).on(
-      'name -> name,
+      'name -> ("%" + name + "%"),
       'limit -> 100
     ).as(Album.simple *)
   }
   
   def findAll(): List[Album] = DB.withConnection { implicit connection =>
     SQL("select * from album").as(Album.simple *)
+  }
+  
+  def findAllWithArtists(name: String): List[(Album, Artist)] = DB.withConnection { implicit connection =>
+    SQL(
+      """
+        select * from album join artist on album.artist = artist.id
+        where album.name like {name} limit {limit}
+      """).on(
+      'name -> ("%" + name + "%"),
+      'limit -> 100
+    ).as((Album.simple ~ Artist.simple).map {
+      case album~artist => (album, artist)
+    } *)
+  }
+
+  def findAllWithArtists(): List[(Album, Artist)] = DB.withConnection { implicit connection =>
+    SQL("select * from album join artist on album.artist = artist.id").as(
+      (Album.simple ~ Artist.simple).map {
+        case album~artist => (album, artist)
+      } *)
   }
 
   implicit val genreToStatement = new ToStatement[Genre] {
@@ -95,7 +115,7 @@ object Album {
     SQL(
       """
         insert into album values (
-          {id}, {name}, {artist}, {releaseDate}, {genre}, {nbVote}, {hasCover}
+          {id}, {name}, {artist}, {releaseDate}, {genre}, {nbVotes}, {hasCover}
         )
       """
     ).on(
@@ -104,7 +124,7 @@ object Album {
       'artist -> album.artist,
       'releaseDate -> album.releaseDate,
       'genre -> album.genre,
-      'nbVote -> album.nbVote,
+      'nbVotes -> album.nbVotes,
       'hasCover -> album.hasCover
     ).executeUpdate()
 
@@ -115,7 +135,7 @@ object Album {
     SQL(
       """
         update album
-        set name = {name}, artist = {artist}, releaseDate = {releaseDate}, genre = {genre}, nbVote = {nbVote}, hasCover = {hasCover}
+        set name = {name}, artist = {artist}, releaseDate = {releaseDate}, genre = {genre}, nbVotes = {nbVotes}, hasCover = {hasCover}
         where id = {id}
       """
     ).on(
@@ -124,7 +144,7 @@ object Album {
       'artist -> album.artist,
       'releaseDate -> album.releaseDate,
       'genre -> album.genre,
-      'nbVote -> album.nbVote,
+      'nbVotes -> album.nbVotes,
       'hasCover -> album.hashCode
     ).executeUpdate()
 
@@ -167,10 +187,10 @@ object Album {
     get[Long]("album.artist") ~
     get[Date]("album.releaseDate") ~
     get[Genre]("album.genre") ~
-    get[Int]("album.nbVote") ~
+    get[Int]("album.nbVotes") ~
     get[Boolean]("album.hasCover") map {
-      case id~name~artist~releaseDate~genre~nbVote~hasCover => Album(
-        id, name, artist, releaseDate, genre, nbVote, hasCover
+      case id~name~artist~releaseDate~genre~nbVotes~hasCover => Album(
+        id, name, artist, releaseDate, genre, nbVotes, hasCover
       )
     }
   }
@@ -180,5 +200,5 @@ object AlbumFormat {
 
   import JsonFormats._
 
-  implicit val albumFormat = productFormat7("id", "name", "artist", "releaseDate", "genre", "nbVote", "hasCover")(Album.apply)(Album.unapply)
+  implicit val albumFormat = productFormat7("id", "name", "artist", "releaseDate", "genre", "nbVotes", "hasCover")(Album.apply)(Album.unapply)
 }

@@ -31,7 +31,8 @@ package object formats {
     def bind(key: String, data: Map[String, String]) = {
       stringFormat.bind(key, data).right.map {
         str =>
-          scala.util.control.Exception.allCatch[Pk[Long]].opt(Id(str.toLong))
+          scala.util.control.Exception.allCatch[Pk[Long]]
+            .opt(Id(str.toLong))
             .getOrElse(anorm.NotAssigned)
       }
     }

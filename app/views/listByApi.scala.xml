@@ -8,7 +8,7 @@
         <artist>@album.artist</artist>
         <releaseDate>@album.releaseDate</releaseDate>
         <genre>@album.genre</genre>
-        <nbVote>@album.nbVote</nbVote>
+        <nbVote>@album.nbVotes</nbVote>
         <hasCover>@album.hasCover</hasCover>
     </album>
     }

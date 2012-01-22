@@ -29,7 +29,7 @@ object forms {
         "artist" -> ignored(0L),
         "releaseDate" -> of[Date],
         "genre" -> of[Genre.Genre],
-        "nbVote" -> ignored(0L),
+        "nbVotes" -> ignored(0L),
         "hasCover" -> ignored(false)
       ),
       "artist" -> of(Artist.apply _, Artist.unapply _)(
