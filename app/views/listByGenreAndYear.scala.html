@@ -1,12 +1,14 @@
-@(genre: Int, year: String, albums: List[models.Album])
+@(genre: Genre.Genre, year: String, albums: List[(Album, Artist)])(implicit user: Option[User])
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-        "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-  <title></title>
-</head>
-<body>
+@import tags._
 
-</body>
-</html>
+@main("Album list") {
+    <h1>Top albums in @genre.toString for @year</h1>
+
+    <!-- Album table -->
+    @albumtable(albums)
+
+    <ul id="links">
+        <li><a href="/" class="button">Back</a></li>
+    </ul>
+}

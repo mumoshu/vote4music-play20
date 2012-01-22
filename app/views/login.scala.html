@@ -1,19 +1,46 @@
-@(form: Form[(String, String)])
+@(form: Form[(String, String)])(implicit flash: Flash, user: Option[User])
+
+@import helpers.secure
 
 @main("Login") {
+
+<link rel="stylesheet" ref="@routes.Assets.at("stylesheets/secure.css")">
+
+<div id="login">
+    <h1>@secure.title</h1>
+
     <form action="@routes.Secure.doLogin" method="POST">
         @form.globalError.map { error =>
-            <p class="error">
-                @error.message
-            </p>
+        <p class="error">
+            @error.message
+        </p>
+        }
+        @flash.get("success").map { message =>
+        <p class="success">
+            @message
+        </p>
         }
         @form.forField("username") { field =>
+        <p id="username-field">
             <label>@field.name</label>
-            <input type="text" name="@field.name" id="@field.name" value="@field.value">
+            <input type="text" name="@field.name" id="@field.name" value="@flash.get("username").map(username => username)">
+        </p>
         }
         @form.forField("password") { field =>
+        <p id="password-field">
             <label>@field.name</label>
             <input type="password" name="@field.name" id="@field.name">
+        </p>
         }
+        @form.forField("remember") { field =>
+        <p id="remember-field">
+            <input type="checkbox" name="@field.name" id="@field.name" value="true" @flash.get("remember").map(_ => """checked="true"""")>
+            <label>@field.name</label>
+        </p>
+        }
+        <p id="signin-field">
+            <button type="submit" id="signin">Login</button>
+        </p>
     </form>
+</div>
 }

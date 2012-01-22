@@ -59,14 +59,20 @@ object Album {
     ).as(Album.simple.singleOpt)
   }
   
-  def findByGenreAndYear(genre: Genre, year: String): List[Album] = DB.withConnection { implicit connection =>
+  def findByGenreAndYear(genre: Genre, year: String): List[(Album, Artist)] = DB.withConnection { implicit connection =>
     SQL(
-      "select * from album where genre = {genre} order by nbVotes desc"
+      """
+        select * from album
+        join artist on album.artist = artist.id
+        where genre = {genre} order by nbVotes desc
+      """
     ).on(
       'genre -> genre
     ).as(
-      Album.simple *
-    ).filter(_.releaseYear == year)
+      Album.simple ~ Artist.simple map {
+        case album~artist => (album, artist)
+      } *
+    ).filter(_._1.releaseYear == year)
   }
   
   def findAll(name: String): List[Album] = DB.withConnection { implicit connection =>

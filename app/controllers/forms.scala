@@ -44,7 +44,11 @@ object forms {
       "username" -> text,
       "password" -> text
     ) verifying ("Invalid username or password", result => result match {
-      case (username, password) => username == Play.configuration.getString("application.admin") && password == Play.configuration.getString("application.adminpwd")
+      case (username, password) => (for (
+        u <- Play.configuration.getString("application.admin") if u == username;
+        p <- Play.configuration.getString("application.adminpwd") if p == password)
+          yield true
+      ).isDefined
     })
   )
 

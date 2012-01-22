@@ -8,20 +8,20 @@ import forms._
 
 object Secure extends Controller with Secured {
 
-  def login = Action {
+  def login = MayAuthenticated { implicit user => implicit request =>
     Ok(views.html.login(loginForm))
   }
 
-  def doLogin = Action { implicit request =>
+  def doLogin = MayAuthenticated { implicit user => implicit request =>
     loginForm.bindFromRequest.fold(
       formWithError => BadRequest(views.html.login(formWithError)),
       user => Redirect(routes.Application.list).withSession("username" -> user._1)
     )
   }
 
-  def logout() = IsAuthenticated { username =>
+  def logout() = IsAuthenticated { implicit user =>
     { request =>
-      Ok(views.html.index(Application.getYearsToDisplay)).discardingCookies("username")
+      Redirect(routes.Application.index()).withNewSession
     }
   }
   

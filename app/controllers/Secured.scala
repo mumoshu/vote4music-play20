@@ -3,6 +3,8 @@ package controllers
 import play.api._
 import play.api.mvc._
 
+import models.User
+
 trait Secured {
 
   /**
@@ -20,18 +22,18 @@ trait Secured {
   /**
    * Action for authenticated users.
    */
-  def IsAuthenticated(f: => String => Request[AnyContent] => Result) = Security.Authenticated(username, onUnauthorized) { user =>
-    Action(request => f(user)(request))
+  def IsAuthenticated(f: => Option[User] => Request[AnyContent] => Result) = Security.Authenticated(username, onUnauthorized) { user =>
+    Action(request => f(Some(User(user)))(request))
   }
   
-  def MayAuthenticated(f: Option[models.User] => Result): Action[AnyContent] = Action { request =>
-    val user = username(request).map(models.User.apply _)
-    f(user)
-  }
-  
-  def MayAuthenticated(f: (Request[AnyContent], Option[models.User]) => Result): Action[AnyContent] = Action { request =>
-    val user = username(request).map(models.User.apply _)
-    f(request, user)
+//  def MayAuthenticated(f: Option[models.User] => Result): Action[AnyContent] = Action { request =>
+//    val user = username(request).map(models.User.apply _)
+//    f(user)
+//  }
+//
+  def MayAuthenticated(f: Option[User] => Request[AnyContent] => Result): Action[AnyContent] = Action { request =>
+    val user = username(request).map(User.apply _)
+    f(user)(request)
   }
 
 }

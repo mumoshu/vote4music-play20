@@ -18,31 +18,31 @@ object Application extends Controller with Secured {
 
   import forms._
 
-  def index() = Action {
+  def index() = MayAuthenticated { implicit user => request =>
     Ok(views.html.index(getYearsToDisplay))
   }
   
-  def list = MayAuthenticated { implicit user =>
+  def list = MayAuthenticated { implicit user => { implicit request =>
     val albums = Album.findAllWithArtists
     Ok(views.html.list(albums))
-  }
+  }}
   
-  def search(filter: Option[String]) = Action {
+  def search(filter: Option[String]) = MayAuthenticated { implicit user => { request =>
     val albums = filter.map(Album.findAllWithArtists _).getOrElse(Album.findAllWithArtists)
     Ok(views.html.list(albums))
-  }
+  }}
   
-  def listByGenreAndYear() = Action { implicit request =>
-    genreAndYearForm.bindFromRequest.fold(
+  def listByGenreAndYear() = MayAuthenticated { implicit user => { implicit request =>
+    genreAndYearForm.bindFromRequest()(request).fold(
       { form =>
         BadRequest(views.html.index(getYearsToDisplay()))
       },
       { case (genre, year) =>
         val albums = Album.findByGenreAndYear(Genre(genre), year)
-        Ok(views.html.listByGenreAndYear(genre, year, albums))
+        Ok(views.html.listByGenreAndYear(Genre(genre), year, albums)(user))
       }
     )
-  }
+  }}
   
   def listByApi(genre: Option[Int],  year: Option[String], format: String) = Action { implicit request =>
     val albums = genre.map { g =>
@@ -76,14 +76,14 @@ object Application extends Controller with Secured {
   /**
    * Create album
    */
-  def form() = Action {
+  def form() = MayAuthenticated { implicit user => { implicit request =>
     Ok(views.html.form(albumForm))
-  }
+  }}
 
   /**
    * Create or update album
    */
-  def save() = Action { implicit request =>
+  def save() = MayAuthenticated { implicit user =>  { implicit request =>
     albumForm.bindFromRequest.fold(
       { form =>
         Logger.debug("error form = %s".format(form))
@@ -114,7 +114,7 @@ object Application extends Controller with Secured {
     )
 
     
-  }
+  }}
   
   def vote() = Action { implicit request =>
     Form("id" -> number).bindFromRequest.fold(

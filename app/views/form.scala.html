@@ -1,4 +1,4 @@
-@(albumForm: Form[(models.Album, models.Artist)])
+@(albumForm: Form[(models.Album, models.Artist)])(implicit user: Option[User])
 
 @import play.api.i18n.Messages
 
@@ -14,7 +14,7 @@
 
 @main("Album form", moreScripts = moreScripts) {
     <h1>Please write information about your favorite album</h1>
-    @helper.form(action = routes.Application.save) {
+    <form action="@routes.Application.save()" enctype="multipart/form-data" method="POST">
 
     @albumForm.forField("album.id") { field =>
         <input type="hidden" name="@field.name" value="@field.value"/>
@@ -84,5 +84,5 @@
         <a href="/albums" class="button">Cancel</a> or <input type="submit" class="button" value="Save this album" id="saveAlbum"/>
     </p>
 
-    }
+    </form>
 }

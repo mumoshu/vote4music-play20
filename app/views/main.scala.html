@@ -1,4 +1,4 @@
-@(title: String, moreScripts: Html = Html.empty, moreStyles: Html = Html.empty)(content: Html)
+@(title: String, moreScripts: Html = Html.empty, moreStyles: Html = Html.empty)(content: Html)(implicit user: Option[User])
 
 @import play.api.Play.current
 @import helpers._
@@ -35,11 +35,10 @@
     <header>
     <h1><a href="/">@play.api.Play.configuration.getString("application.name").get</a> <span><a href="./">@title</a></span></h1>
     <div align="right">
-    @session.get("username").map { username =>
-        <a class="vm-admin" href="/admin/login">Log as admin</a>
-    }
-    @if(secure.check("admin")) {
+    @if(user.isDefined && secure.check(user.get, "admin")) {
         <a class="vm-admin" href="@routes.Secure.logout()">Logout</a>
+    } else {
+        <a class="vm-admin" href="/admin/login">Log as admin</a>
     }
     </div>
     </header>
