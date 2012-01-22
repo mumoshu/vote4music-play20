@@ -93,19 +93,24 @@ object Application extends Controller with Secured {
         request.body.asMultipartFormData.map { data =>
           // replace duplicate artist
           val artistId = Artist.findByName(artist.name).getOrElse(Artist.create(artist)).id.get
+          val updatedAlbum = album.copy(artist = artistId)
+          val savedAlbum = updatedAlbum.id match {
+            case anorm.NotAssigned => Album.create(updatedAlbum)
+            case _ => Album.save(updatedAlbum)
+          }
           // album cover
           data.file("cover").map { cover =>
-            val path = "/public/shared/covers/" + album.id
+            play.api.Logger.debug("cover=%s".format(cover))
+            val path = "/public/shared/covers/" + savedAlbum.id
             val newFile = Play.getFile(path)
             //delete old cover if exists
             if (newFile.exists())
               newFile.delete()
             cover.ref.file.renameTo(newFile)
   
-            album.copy(hasCover = true)
-          }.orElse(Some(album))
-            .map(_.copy(artist = artistId))
-            .map(Album.save)
+            savedAlbum.copy(hasCover = true)
+          }.map(Album.save)
+
         }
 
         //return to album list

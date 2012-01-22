@@ -39,7 +39,7 @@
 
         //Display cover in datatable
         displayCover = function(id, albumMarkup){
-            var root = '/public/shared/covers';
+            var root = '/assets/shared/covers';
             var markup = '<img src="' + root + '/' + id + '" width="200" height="197">';
             albumMarkup.bt(markup, {
                 width: 200,
