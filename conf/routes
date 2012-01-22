@@ -16,6 +16,7 @@ GET     /search                     controllers.Application.search(filter: Optio
 GET     /topalbums                  controllers.Application.listByGenreAndYear()
 GET     /album/new                  controllers.Application.form()
 GET     /album/:id                  controllers.Admin.form(id: Long)
+POST    /application/vote           controllers.Application.vote()
 
 GET     /listByApi.$format<json|xml> controllers.Application.listByApi(genre: Option[Int], year: Option[String], format)
 

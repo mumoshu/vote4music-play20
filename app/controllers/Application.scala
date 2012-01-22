@@ -115,6 +115,19 @@ object Application extends Controller with Secured {
 
     
   }
+  
+  def vote() = Action { implicit request =>
+    Form("id" -> number).bindFromRequest.fold(
+      form => BadRequest,
+      id => {
+        Album.findById(id).map(a => a.copy(nbVotes = a.nbVotes + 1)).map(Album.save).map { a =>
+          Ok(a.nbVotes.toString)
+        }.getOrElse {
+          NotFound
+        }
+      }
+    )
+  }
 
   /**
    * Years to display for top albums form

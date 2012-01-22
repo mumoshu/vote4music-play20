@@ -44,6 +44,14 @@
     </div>
     </header>
 
+    <!-- Javascript at the bottom for fast page loading -->
+    <!-- Grab Google CDN's jQuery. fall back to local if necessary -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
+    <script src="@routes.Assets.at("javascripts/jquery-1.4.min.js")"></script>
+    <script src="@routes.Assets.at("javascripts/jquery-ui-1.7.2.custom.min.js")"></script>
+    <script src="@routes.Assets.at("javascripts/jquery.editinplace.packed.js")"></script>
+    @moreScripts
+
     <div id="content">
     @content
     </div>
@@ -52,15 +60,6 @@
         <p>Booya</p>
     </footer>
     </div> <!--! end of #container -->
-
-
-    <!-- Javascript at the bottom for fast page loading -->
-    <!-- Grab Google CDN's jQuery. fall back to local if necessary -->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
-    <script src="@routes.Assets.at("javascripts/jquery-1.4.min.js")"></script>
-    <script src="@routes.Assets.at("javascripts/jquery-ui-1.7.2.custom.min.js")"></script>
-    <script src="@routes.Assets.at("javascripts/jquery.editinplace.packed.js")"></script>
-    @moreScripts
 
 </body>
 </html>
