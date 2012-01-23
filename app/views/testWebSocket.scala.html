@@ -1,6 +1,12 @@
 @()(implicit user: Option[User], request: RequestHeader)
 
-@main("WebSocket Test") {
+@main("") {
+    <h1>Test</h1>
+
+    <div id="message"></div>
+
+    <a id="longTask" href="#">Long task</a>
+
     <script>
         var socket = new WebSocket('@routes.AsyncController.testWebSocket().webSocketURL()');
 
@@ -21,9 +27,4 @@
         });
     </script>
 
-    <h1>Test</h1>
-
-    <div id="message"></div>
-
-    <a id="longTask" href="#">Long task</a>
 }

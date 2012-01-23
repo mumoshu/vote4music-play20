@@ -7,7 +7,9 @@
 
     $(function(){
         // those stuff needs to be wrapped in a dom-ready callback. (same as $(document).ready)
-        $("#releaseDate").datepicker({dateFormat:'yy-mm-dd', showAnim:'fadeIn'});
+        @albumForm.forField("album.releaseDate") { field =>
+        $("#@field.id").datepicker({dateFormat:'yy-mm-dd', showAnim:'fadeIn'});
+        }
     });
 </script>
 }
@@ -62,7 +64,7 @@
     <p class="field">
         @albumForm.forField("album.releaseDate") { field =>
             <label for="@field.name">Release date</label>
-            <input type="text" name="@field.name" id="@field.name" value="@field.value">
+            <input type="text" name="@field.name" id="@field.id" value="@field.value">
             @field.error.map { error =>
                 <span class="error">@Messages(error.message)</span>
             }
