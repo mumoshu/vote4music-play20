@@ -35,12 +35,18 @@ object Album {
     ).as(Album.simple.singleOpt)
   }
 
-  def findByGenre(genre: Genre): List[Album] = DB.withConnection { implicit connection =>
+  def findByGenre(genre: Genre): List[(Album, Artist)] = DB.withConnection { implicit connection =>
     SQL(
-      "select * from album where genre = {genre}"
+      """
+        select * from album
+        join artist on album.artist = artist.id
+        where genre = {genre}
+      """
     ).on(
       'genre -> genre.id
-    ).as(Album.simple *)
+    ).as((Album.simple ~ Artist.simple) map {
+      case album~artist => (album, artist)
+    } *)
   }
   
   def delete(album: Album) = DB.withConnection { implicit connection =>
@@ -137,7 +143,7 @@ object Album {
     album.copy(id = Id(id))
   }
   
-  def save(album: Album): Album = DB.withConnection { implicit connection =>
+  def update(album: Album): Album = DB.withConnection { implicit connection =>
     SQL(
       """
         update album
@@ -156,6 +162,8 @@ object Album {
 
     album
   }
+
+  def save(album: Album): Album = if (album.id.isDefined) update(album) else create(album)
   
   def getFirstAlbumYear: Int = DB.withConnection { implicit connection =>
     SQL(
@@ -200,11 +208,4 @@ object Album {
       )
     }
   }
-}
-
-object AlbumFormat {
-
-  import JsonFormats._
-
-  implicit val albumFormat = productFormat7("id", "name", "artist", "releaseDate", "genre", "nbVotes", "hasCover")(Album.apply)(Album.unapply)
 }

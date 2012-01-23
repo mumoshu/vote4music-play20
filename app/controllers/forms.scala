@@ -22,12 +22,29 @@ object forms {
 
   val albumForm = Form(
     of(
-//      "cover" -> text,
       "album" -> of(Album.apply _, Album.unapply _)(
         "id" -> of[anorm.Pk[Long]],
         "name" -> text,
         "artist" -> ignored(0L),
         "releaseDate" -> of[Date],
+        "genre" -> of[Genre.Genre],
+        "nbVotes" -> ignored(0L),
+        "hasCover" -> ignored(false)
+      ),
+      "artist" -> of(Artist.apply _, Artist.unapply _)(
+        "id" -> ignored(anorm.NotAssigned),
+        "name" -> text
+      )
+    )
+  )
+
+  val albumFormForXml = Form(
+    of(
+      "album" -> of(Album.apply _, Album.unapply _)(
+        "id" -> of[anorm.Pk[Long]],
+        "name" -> text,
+        "artist" -> ignored(0L),
+        "release-date" -> of[Date],
         "genre" -> of[Genre.Genre],
         "nbVotes" -> ignored(0L),
         "hasCover" -> ignored(false)

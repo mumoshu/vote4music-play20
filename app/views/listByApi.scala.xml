@@ -1,13 +1,18 @@
-@(albums: List[models.Album])
+@(albums: List[(Album, Artist)])
+
+@import helpers.DateHelper._
 
 <albums>
-    @albums.map { album =>
+    @albums.map { case (album, artist) =>
     <album>
         <id>@album.id</id>
         <name>@album.name</name>
-        <artist>@album.artist</artist>
-        <releaseDate>@album.releaseDate</releaseDate>
-        <genre>@album.genre</genre>
+        <artist>
+            <id>@artist.id</id>
+            <name>@artist.name</name>
+        </artist>
+        <releaseDate>@album.releaseDate.format("yyyy-MM-dd")</releaseDate>
+        <genre>@album.genre.toString</genre>
         <nbVote>@album.nbVotes</nbVote>
         <hasCover>@album.hasCover</hasCover>
     </album>

@@ -10,7 +10,7 @@ import play.api.libs.json.Writes._
 import play.api.Play.current
 
 import models.{Genre, Album, Artist}
-import models.AlbumFormat._
+import models.JsonFormats._
 
 import java.util.Date
 
@@ -44,20 +44,20 @@ object Application extends Controller with Secured {
     )
   }}
   
-  def listByApi(genre: Option[Int],  year: Option[String], format: String) = Action { implicit request =>
+  def listByApi(genre: Option[String],  year: Option[String], format: String) = Action { implicit request =>
     val albums = genre.map { g =>
-      Album.findByGenre(Genre(g))
+      Album.findByGenre(Genre.withName(g))
     }.getOrElse(
-      Album.findAll
+      Album.findAllWithArtists()
     )
     val maybeFiltered = year.map { y =>
-      albums.filter(_.releaseYear == y)
+      albums.filter(_._1.releaseYear == y)
     }.getOrElse(
       albums
     )
     format match {
-      case "json" => Ok(toJson(albums))
-      case "xml" => Ok(views.xml.listByApi(albums))
+      case "json" => Ok(toJson(maybeFiltered))
+      case "xml" => Ok(views.xml.listByApi(maybeFiltered))
     }
   }
 
@@ -117,10 +117,54 @@ object Application extends Controller with Secured {
         Redirect(routes.Application.list)
       }
     )
-
-    
   }}
-  
+
+  /**
+   * Save album via API
+   */
+  def saveAlbumByApi() = Action { request =>
+    request.contentType.map {
+      case t if t == ContentTypes.XML  => saveAlbumXml()(request)
+      case t if t == ContentTypes.JSON => saveAlbumJson()(request)
+      case t                           => BadRequest("Content-type %s is not supported.".format(t))
+    }.getOrElse(
+      BadRequest("Content-type must be %s or %s, but was not given.")
+    )
+  }
+
+  /**
+   * Save album via JSON API
+   */
+  def saveAlbumJson() = Action { implicit request =>
+    albumForm.bindFromRequest.fold(
+      form => BadRequest(toJson(form.errors.map(_.message))),
+      { case (album, artist) =>
+        Artist.findByName(artist.name).orElse(Some(Artist.create(artist))).map { artist =>
+          Album.save(album.copy(artist = artist.id.get))
+          Ok
+        }.get
+      }
+    )
+  }
+
+  /**
+   * Save album via XML API
+   */
+  def saveAlbumXml() = Action { implicit request =>
+    // parse xml document
+    albumFormForXml.bindFromRequest.fold(
+      form => BadRequest(toJson(form.errors.map(_.message))),
+      // get the album and the artist
+      { case (album, artist) =>
+        Artist.findByName(artist.name).orElse(Some(Artist.create(artist))).map { artist =>
+          //save in db
+          Album.save(album.copy(artist = artist.id.get))
+          Ok
+        }.get
+      }
+    )
+  }
+
   def vote() = Action { implicit request =>
     Form("id" -> number).bindFromRequest.fold(
       form => BadRequest,

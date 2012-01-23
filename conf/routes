@@ -2,23 +2,28 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Home page
-GET     /                           controllers.Application.index()
+# User pages
+GET     /                                           controllers.Application.index()
+GET	    /api/albums.$format<json|xml>               controllers.Application.listByApi(genre: Option[String] = None, year: Option[String] = None, format)
+GET	    /api/:genre/albums.$format<json|xml>        controllers.Application.listByApi(genre: Option[String], year: Option[String] = None, format)
+GET	    /api/:genre/:year/albums.$format<json|xml>  controllers.Application.listByApi(genre: Option[String], year: Option[String], format)
+GET	    /api/artists.$format<json|xml>              controllers.Application.listArtistsByApi(format)
+POST    /album                                      controllers.Application.save()
+GET     /albums                                     controllers.Application.list()
+GET     /search                                     controllers.Application.search(filter: Option[String] ?= None)
+GET     /topalbums                                  controllers.Application.listByGenreAndYear()
+GET     /album/new                                  controllers.Application.form()
+GET     /album/:id                                  controllers.Admin.form(id: Long)
+POST    /api/album                                  controllers.Application.saveAlbumByApi()
 
-GET     /admin/login                controllers.Secure.login()
-POST    /admin/login                controllers.Secure.doLogin()
-GET     /admin/logout               controllers.Secure.logout()
-GET     /admin/delete               controllers.Admin.delete(id: Long)
+# Vote
+POST    /application/vote                           controllers.Application.vote()
 
-POST    /album                      controllers.Application.save()
-GET     /albums                     controllers.Application.list()
-GET     /search                     controllers.Application.search(filter: Option[String] ?= None)
-GET     /topalbums                  controllers.Application.listByGenreAndYear()
-GET     /album/new                  controllers.Application.form()
-GET     /album/:id                  controllers.Admin.form(id: Long)
-POST    /application/vote           controllers.Application.vote()
-
-GET     /listByApi.$format<json|xml> controllers.Application.listByApi(genre: Option[Int], year: Option[String], format)
+# Admin pages
+GET     /admin/login                                controllers.Secure.login()
+POST    /admin/login                                controllers.Secure.doLogin()
+GET     /admin/logout                               controllers.Secure.logout()
+GET     /admin/delete                               controllers.Admin.delete(id: Long)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

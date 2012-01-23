@@ -51,8 +51,4 @@ object Artist {
       case id~name => Artist(id, name)
     }
   }
-  
-  import JsonFormats._
-
-  implicit val artistFormat = play.api.libs.json.Generic.productFormat2("id", "name")(Artist.apply)(Artist.unapply)
 }

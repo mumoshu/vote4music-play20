@@ -1,8 +1,12 @@
 package models
 
 import play.api.libs.json._
+import play.api.libs.json.Generic._
+
 import anorm.{Id, Pk}
 import java.util.Date
+
+import models._
 import Genre.Genre
 
 object JsonFormats {
@@ -27,10 +31,43 @@ object JsonFormats {
 
   implicit val genreFormat = new Format[Genre] {
     def reads(json: JsValue) = json match {
-      case JsNumber(num) => Genre(num.toInt)
+      case JsString(str) => Genre.withName(str)
     }
 
-    def writes(o: Genre.Genre) = JsNumber(o.id)
+    def writes(o: Genre.Genre) = JsString(o.toString)
+  }
+
+  implicit val albumFormat = productFormat7("id", "name", "artist", "releaseDate", "genre", "nbVotes", "hasCover")(Album.apply)(Album.unapply)
+
+  implicit val artistFormat = play.api.libs.json.Generic.productFormat2("id", "name")(Artist.apply)(Artist.unapply)
+
+  implicit val albumWithArtistFormat = new Format[(Album, Artist)] {
+    def reads(json: JsValue) = json match {
+      case o: JsObject => (
+        Album(
+          fromJson[Pk[Long]](o \ "id"),
+          fromJson[String](o \ "name"),
+          fromJson[Long](o \ "artist" \ "id"),
+          fromJson[Date](o \ "releaseDate"),
+          fromJson[Genre](o \ "genre"),
+          fromJson[Int](o \ "nbVotes"),
+          fromJson[Boolean](o \ "hasCover")
+        ),
+        fromJson[Artist](o \ "artist")
+      )
+    }
+
+    def writes(o: (Album, Artist)) = o match {
+      case (album, artist) => JsObject(Seq(
+        "id" -> toJson(album.id),
+        "name" -> toJson(album.name),
+        "artist" -> toJson(artist),
+        "releaseDate" -> toJson(album.releaseDate),
+        "genre" -> toJson(album.genre),
+        "nbVotes" -> toJson(album.nbVotes),
+        "hasCover" -> toJson(album.hasCover)
+      ))
+    }
   }
 
 }
