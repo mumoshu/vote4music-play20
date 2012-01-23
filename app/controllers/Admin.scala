@@ -33,8 +33,8 @@ object Admin extends Controller with Secured {
   }}
   
   def form(id: Long) = MayAuthenticated { implicit user => { request =>
-    Album.findById(id).map { album =>
-      Ok(views.html.form(albumForm.fill(album, null)))
+    Album.findByIdWithArtist(id).map { albumAndArtist =>
+      Ok(views.html.form(albumForm.fill(albumAndArtist)))
     }.getOrElse(NotFound)
   }}
 

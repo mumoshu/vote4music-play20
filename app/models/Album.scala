@@ -34,6 +34,20 @@ object Album {
       'id -> id
     ).as(Album.simple.singleOpt)
   }
+  
+  def findByIdWithArtist(id: Long): Option[(Album, Artist)] = DB.withConnection { implicit connection =>
+    SQL(
+      """
+        select * from album
+        join artist on album.artist = artist.id
+        where album.id = {id}
+      """
+    ).on(
+      'id -> id
+    ).as((Album.simple ~ Artist.simple) map {
+      case album~artist => (album, artist)
+    } singleOpt)
+  }
 
   def findByGenre(genre: Genre): List[(Album, Artist)] = DB.withConnection { implicit connection =>
     SQL(
