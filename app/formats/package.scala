@@ -10,18 +10,16 @@ package object formats {
 
   implicit def genreFormat = new Formatter[Genre.Genre] {
 
-    override val format = Some("format.numeric", Nil)
-
     def bind(key: String, data: Map[String, String]) = {
-      intFormat.bind(key, data).right.flatMap {
-        i =>
+      stringFormat.bind(key, data).right.flatMap {
+        str =>
           scala.util.control.Exception.allCatch[Genre.Genre]
-            .either(Genre(i))
-            .left.map(e => Seq(FormError(key, "error.number", Nil)))
+            .either(Genre.withName(str))
+            .left.map(e => Seq(FormError(key, "error.genre", Nil)))
       }
     }
 
-    def unbind(key: String, value: Genre.Genre) = Map(key -> value.id.toString)
+    def unbind(key: String, value: Genre.Genre) = Map(key -> value.toString)
   }
 
   implicit def pkLongFormat = new Formatter[Pk[Long]] {

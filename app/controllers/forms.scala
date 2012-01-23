@@ -16,7 +16,7 @@ object forms {
   
   val genreAndYearForm = Form(
     of(
-      "genre" -> number(min = 0, max = Genre.maxId),
+      "genre" -> of[Genre.Genre],
       "year" -> text(minLength = 4, maxLength = 4)
     )
   )

@@ -20,7 +20,7 @@
     <label for="genre">Genre:</label>
     <select id ="genre" name="genre">
         @models.Genre.values.map { genre =>
-            <option value="@genre.id">@genre.toString.toLowerCase</option>
+            <option value="@genre.toString">@genre.toString.toLowerCase</option>
         }
     </select>
     <input type="submit" class="button" value="View"/>

@@ -49,10 +49,10 @@
             <label for="@field.name">Genre:</label>
             <select id="@field.name" name="@field.name">
                 @models.Genre.values.map { genre =>
-                    @if(genre == field.value) {
-                        <option value="@genre.id" selected="selected">@genre.toString().toLowerCase()</option>
+                    @if(genre.toString == field.value.get) {
+                        <option value="@genre.toString" selected="selected">@genre.toString().toLowerCase()</option>
                     } else {
-                        <option value="@genre.id">@genre.toString().toLowerCase()</option>
+                        <option value="@genre.toString">@genre.toString().toLowerCase()</option>
                     }
                 }
             </select>

@@ -39,8 +39,8 @@ object Application extends Controller with Secured {
         BadRequest(views.html.index(getYearsToDisplay()))
       },
       { case (genre, year) =>
-        val albums = Album.findByGenreAndYear(Genre(genre), year)
-        Ok(views.html.listByGenreAndYear(Genre(genre), year, albums)(user))
+        val albums = Album.findByGenreAndYear(genre, year)
+        Ok(views.html.listByGenreAndYear(genre, year, albums)(user))
       }
     )
   }}
