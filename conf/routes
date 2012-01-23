@@ -16,8 +16,14 @@ GET     /album/new                                  controllers.Application.form
 GET     /album/:id                                  controllers.Admin.form(id: Long)
 POST    /api/album                                  controllers.Application.saveAlbumByApi()
 
+#Just a test for WebSockets
+GET      /asyncTest                                  controllers.AsyncController.testWebSocket()
+
 # Vote
 POST    /application/vote                           controllers.Application.vote()
+
+POST    /application/publishEvent                   controllers.Application.publishEvent()
+GET     /application/testWebSocket                  controllers.Application.testWebSocket()
 
 # Admin pages
 GET     /admin/login                                controllers.Secure.login()

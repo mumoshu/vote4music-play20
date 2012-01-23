@@ -1,0 +1,29 @@
+@()(implicit user: Option[User], request: RequestHeader)
+
+@main("WebSocket Test") {
+    <script>
+        var socket = new WebSocket('@routes.AsyncController.testWebSocket().webSocketURL()');
+
+        var display = function(event) {
+            $('#message').append('' + event + '');
+        }
+
+        socket.onmessage = function(event) {
+            display(event.data);
+        }
+
+        $(document).ready(function() {
+            $('#longTask').click(
+                    function() {
+                        $.post('@routes.Application.publishEvent()', { message: 'Ok it works!!! ' } );
+                    }
+            );
+        });
+    </script>
+
+    <h1>Test</h1>
+
+    <div id="message"></div>
+
+    <a id="longTask" href="#">Long task</a>
+}

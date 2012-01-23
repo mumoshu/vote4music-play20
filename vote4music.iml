@@ -28,12 +28,10 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../Play20/repository/local/play/play_2.9.1/2.0-RC1-SNAPSHOT/jars/play_2.9.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../Play20/framework/../repository/local/play/play_2.9.1/2.0-RC1-SNAPSHOT/jars/play_2.9.1.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/../../Play20/repository/local/play/play_2.9.1/2.0-RC1-SNAPSHOT/srcs/play_2.9.1-sources.jar!/" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
@@ -87,9 +85,7 @@
           <root url="jar://$MODULE_DIR$/../../Play20/framework/../repository/local/play/anorm_2.9.1/2.0-RC1-SNAPSHOT/jars/anorm_2.9.1.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/../../Play20/framework/../repository/local/play/anorm_2.9.1/2.0-RC1-SNAPSHOT/srcs/anorm_2.9.1-sources.jar!/" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
@@ -437,7 +433,7 @@
     <orderEntry type="module-library" scope="TEST">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../Play20/repository/local/play/play_2.9.1/2.0-RC1-SNAPSHOT/jars/play_2.9.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../Play20/framework/../repository/local/play/play_2.9.1/2.0-RC1-SNAPSHOT/jars/play_2.9.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

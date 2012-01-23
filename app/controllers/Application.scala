@@ -3,13 +3,14 @@ package controllers
 import play.api._
 import play.api.mvc._
 import play.api.data._
+import play.api.data.Forms._
 import play.api.http.ContentTypes
 import play.api.libs.json._
 import play.api.libs.json.Reads._
 import play.api.libs.json.Writes._
 import play.api.Play.current
 
-import models.{Genre, Album, Artist}
+import models.{Genre, Album, Artist, Room}
 import models.JsonFormats._
 
 import java.util.Date
@@ -184,5 +185,28 @@ object Application extends Controller with Secured {
   def getYearsToDisplay(): List[Int] = {
     (Album.getFirstAlbumYear to Album.getLastAlbumYear).reverse.toList
   }
+
+  // WebSocket tests
+
+  def publishEvent() = Action { implicit reqeust =>
+    import play.api.data.format.Formats.stringFormat
+    Form("message" -> of[String]).bindFromRequest.fold(
+      form => BadRequest(form.errors.map(_.message).mkString(", ")),
+      message => {
+        try {
+          Thread.sleep(5000);
+        } catch  {
+          case e: InterruptedException =>
+            Logger.error(e.getMessage());
+        }
+        Room.publish(message);
+        Ok
+      }
+    )
+  }
+
+  def testWebSocket() = MayAuthenticated { implicit user => { implicit request =>
+    Ok(views.html.testWebSocket())
+  }}
 
 }
