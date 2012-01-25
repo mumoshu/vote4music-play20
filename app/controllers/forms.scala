@@ -15,15 +15,15 @@ import java.util.Date
 object forms {
   
   val genreAndYearForm = Form(
-    of(
+    tuple(
       "genre" -> of[Genre.Genre],
       "year" -> text(minLength = 4, maxLength = 4)
     )
   )
 
   val albumForm = Form(
-    of(
-      "album" -> of(Album.apply _, Album.unapply _)(
+    tuple(
+      "album" -> mapping(
         "id" -> of[anorm.Pk[Long]],
         "name" -> text,
         "artist" -> ignored(0L),
@@ -31,17 +31,17 @@ object forms {
         "genre" -> of[Genre.Genre],
         "nbVotes" -> ignored(0L),
         "hasCover" -> ignored(false)
-      ),
-      "artist" -> of(Artist.apply _, Artist.unapply _)(
-        "id" -> ignored(anorm.NotAssigned),
+      )(Album.apply)(Album.unapply),
+      "artist" -> mapping(
+        "id" -> ignored(anorm.NotAssigned: anorm.Pk[Long]),
         "name" -> text
-      )
+      )(Artist.apply)(Artist.unapply)
     )
   )
 
   val albumFormForXml = Form(
-    of(
-      "album" -> of(Album.apply _, Album.unapply _)(
+    tuple(
+      "album" -> mapping(
         "id" -> of[anorm.Pk[Long]],
         "name" -> text,
         "artist" -> ignored(0L),
@@ -49,16 +49,16 @@ object forms {
         "genre" -> of[Genre.Genre],
         "nbVotes" -> ignored(0L),
         "hasCover" -> ignored(false)
-      ),
-      "artist" -> of(Artist.apply _, Artist.unapply _)(
-        "id" -> ignored(anorm.NotAssigned),
+      )(Album.apply)(Album.unapply),
+      "artist" -> mapping(
+        "id" -> ignored(anorm.NotAssigned: anorm.Pk[Long]),
         "name" -> text
-      )
+      )(Artist.apply)(Artist.unapply)
     )
   )
 
   val loginForm = Form(
-    of(
+    tuple(
       "username" -> text,
       "password" -> text
     ) verifying ("Invalid username or password", result => result match {
