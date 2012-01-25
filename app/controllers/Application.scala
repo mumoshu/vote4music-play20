@@ -131,10 +131,7 @@ object Application extends Controller with Secured {
    * Save album via JSON API
    */
   def saveAlbumJson() = Action { implicit request =>
-    import models.JsonFormats._
-    import play.api.libs.json._
-    import play.api.libs.json.Format._
-    request.body.asJson.map(play.api.libs.json.fromJson[(Album, Artist)]).map { data =>
+    request.body.asJson.map(fromJson[(Album, Artist)]).map { data =>
       Album.saveReplacingDuplicateArtist(data)
       Ok
     }.getOrElse(BadRequest("bad req"))
@@ -153,15 +150,26 @@ object Application extends Controller with Secured {
    */
   def saveAlbumXml() = Action { implicit request =>
     // parse xml document
-    albumFormForXml.bindFromRequest.fold(
-      form =>
-        BadRequest(toJson(form.errors.map(_.message))),
-      // get the album and the artist
-      data => {
-        Album.saveReplacingDuplicateArtist(data)
-        Ok
-      }
-    )
+    request.body.asXml.map { xml =>
+
+      val data = Map(
+        "album.name" -> (xml \ "name" text),
+        "album.nbVotes" -> (xml \ "nbVotes" text),
+        "album.genre" -> (xml \ "genre" text),
+        "album.release-date"  -> (xml \ "release-date" text),
+        "artist.name" -> (xml \ "artist" \ "name" text)
+      )
+
+      albumFormForXml.bind(data).fold(
+        form =>
+          BadRequest(form.errors.map(_.message).mkString(",")),
+        // get the album and the artist
+        data => {
+          Album.saveReplacingDuplicateArtist(data)
+          Ok
+        }
+      )
+    }.getOrElse(BadRequest("Body was not a valid xml"))
   }
 
   def vote() = Action { implicit request =>

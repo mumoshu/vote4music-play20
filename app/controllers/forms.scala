@@ -41,7 +41,7 @@ object forms {
   val albumFormForXml = Form(
     tuple(
       "album" -> mapping(
-        "id" -> of[anorm.Pk[Long]],
+        "id" -> ignored(anorm.NotAssigned: anorm.Pk[Long]),
         "name" -> text,
         "artist" -> ignored(0L),
         "release-date" -> of[Date],
