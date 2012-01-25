@@ -4,13 +4,12 @@ import play.api.Play
 import play.api.Play.current
 import play.api.data._
 import play.api.data.Forms._
-import play.api.data.format._
 import play.api.data.format.Formats._
+
+import java.util.Date
 
 import models._
 import formats._
-
-import java.util.Date
 
 object forms {
   
