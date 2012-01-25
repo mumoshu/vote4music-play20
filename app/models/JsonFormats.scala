@@ -14,6 +14,7 @@ object JsonFormats {
   implicit val pkLongFormat = new Format[Pk[Long]] {
     def reads(json: JsValue) = json match {
       case JsNumber(num) => Id(num.longValue)
+      case _ => throw new RuntimeException("number expected")
     }
 
     def writes(o: Pk[Long]) = JsNumber(o.get)
@@ -24,6 +25,7 @@ object JsonFormats {
 
     def reads(json: JsValue) = json match {
       case JsString(str) => f.parse(str)
+      case _ => throw new RuntimeException("string expected")
     }
 
     def writes(o: Date) = JsString(f.format(o))
@@ -32,6 +34,7 @@ object JsonFormats {
   implicit val genreFormat = new Format[Genre] {
     def reads(json: JsValue) = json match {
       case JsString(str) => Genre.withName(str)
+      case _ => throw new RuntimeException("string expected")
     }
 
     def writes(o: Genre.Genre) = JsString(o.toString)
@@ -55,6 +58,7 @@ object JsonFormats {
         ),
         fromJson[Artist](o \ "artist")
       )
+      case _ => throw new RuntimeException("object expected")
     }
 
     def writes(o: (Album, Artist)) = o match {
