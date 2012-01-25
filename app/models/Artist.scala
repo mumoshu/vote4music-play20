@@ -45,6 +45,10 @@ object Artist {
     artist.copy(id = Id(id))
   }
   
+  def replaceDuplicate(artist: Artist): Artist = DB.withConnection { implicit connection =>
+    findByName(artist.name).getOrElse(Artist.create(artist))
+  }
+  
   val simple: RowParser[Artist] = {
     get[Pk[Long]]("artist.id") ~
     get[String]("artist.name") map {

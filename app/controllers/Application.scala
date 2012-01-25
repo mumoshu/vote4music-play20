@@ -35,7 +35,7 @@ object Application extends Controller with Secured {
   
   def listByGenreAndYear() = MayAuthenticated { implicit user => { implicit request =>
     genreAndYearForm.bindFromRequest()(request).fold(
-      { form =>
+      form => {
         BadRequest(views.html.index(getYearsToDisplay()))
       },
       { case (genre, year) =>
@@ -86,32 +86,26 @@ object Application extends Controller with Secured {
    */
   def save() = MayAuthenticated { implicit user =>  { implicit request =>
     albumForm.bindFromRequest.fold(
-      { form =>
+      form => {
         Logger.debug("error form = %s".format(form))
         Ok(views.html.form(form))
       },
-      { case (album, artist) =>
+      data => {
+        // replace duplicate artist
+        val album = Album.saveReplacingDuplicateArtist(data)
         request.body.asMultipartFormData.map { data =>
-          // replace duplicate artist
-          val artistId = Artist.findByName(artist.name).getOrElse(Artist.create(artist)).id.get
-          val updatedAlbum = album.copy(artist = artistId)
-          val savedAlbum = updatedAlbum.id match {
-            case anorm.NotAssigned => Album.create(updatedAlbum)
-            case _ => Album.save(updatedAlbum)
-          }
           // album cover
           data.file("cover").map { cover =>
             play.api.Logger.debug("cover=%s".format(cover))
-            val path = "/public/shared/covers/" + savedAlbum.id
+            val path = "/public/shared/covers/" + album.id
             val newFile = Play.getFile(path)
             //delete old cover if exists
             if (newFile.exists())
               newFile.delete()
             cover.ref.file.renameTo(newFile)
   
-            savedAlbum.copy(hasCover = true)
+            album.copy(hasCover = true)
           }.map(Album.save)
-
         }
 
         //return to album list
@@ -125,8 +119,8 @@ object Application extends Controller with Secured {
    */
   def saveAlbumByApi() = Action { request =>
     request.contentType.map {
-      case t if t == ContentTypes.XML  => saveAlbumXml()(request)
-      case t if t == ContentTypes.JSON => saveAlbumJson()(request)
+      case t if t startsWith("text/xml")  => saveAlbumXml()(request)
+      case t if t startsWith("application/json") => saveAlbumJson()(request)
       case t                           => BadRequest("Content-type %s is not supported.".format(t))
     }.getOrElse(
       BadRequest("Content-type must be %s or %s, but was not given.")
@@ -137,15 +131,21 @@ object Application extends Controller with Secured {
    * Save album via JSON API
    */
   def saveAlbumJson() = Action { implicit request =>
-    albumForm.bindFromRequest.fold(
-      form => BadRequest(toJson(form.errors.map(_.message))),
-      { case (album, artist) =>
-        Artist.findByName(artist.name).orElse(Some(Artist.create(artist))).map { artist =>
-          Album.save(album.copy(artist = artist.id.get))
-          Ok
-        }.get
-      }
-    )
+    import models.JsonFormats._
+    import play.api.libs.json._
+    import play.api.libs.json.Format._
+    request.body.asJson.map(play.api.libs.json.fromJson[(Album, Artist)]).map { data =>
+      Album.saveReplacingDuplicateArtist(data)
+      Ok
+    }.getOrElse(BadRequest("bad req"))
+//    albumForm.bindFromRequest.fold(
+//      form =>
+//        BadRequest(toJson(form.errors.map(_.message))),
+//      data => {
+//        Album.saveReplacingDuplicateArtist(data)
+//        Ok
+//      }
+//    )
   }
 
   /**
@@ -154,21 +154,20 @@ object Application extends Controller with Secured {
   def saveAlbumXml() = Action { implicit request =>
     // parse xml document
     albumFormForXml.bindFromRequest.fold(
-      form => BadRequest(toJson(form.errors.map(_.message))),
+      form =>
+        BadRequest(toJson(form.errors.map(_.message))),
       // get the album and the artist
-      { case (album, artist) =>
-        Artist.findByName(artist.name).orElse(Some(Artist.create(artist))).map { artist =>
-          //save in db
-          Album.save(album.copy(artist = artist.id.get))
-          Ok
-        }.get
+      data => {
+        Album.saveReplacingDuplicateArtist(data)
+        Ok
       }
     )
   }
 
   def vote() = Action { implicit request =>
     Form("id" -> number).bindFromRequest.fold(
-      form => BadRequest,
+      form =>
+        BadRequest,
       id => {
         Album.findById(id).map(a => a.copy(nbVotes = a.nbVotes + 1)).map(Album.save).map { a =>
           Ok(a.nbVotes.toString)
@@ -191,7 +190,8 @@ object Application extends Controller with Secured {
   def publishEvent() = Action { implicit reqeust =>
     import play.api.data.format.Formats.stringFormat
     Form("message" -> of[String]).bindFromRequest.fold(
-      form => BadRequest(form.errors.map(_.message).mkString(", ")),
+      form =>
+        BadRequest(form.errors.map(_.message).mkString(", ")),
       message => {
         try {
           Thread.sleep(5000);

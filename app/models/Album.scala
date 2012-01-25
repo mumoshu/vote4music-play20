@@ -179,6 +179,14 @@ object Album {
 
   def save(album: Album): Album = if (album.id.isDefined) update(album) else create(album)
   
+  def saveReplacingDuplicateArtist: PartialFunction[(Album, Artist), Album] = { case (album, artist) =>
+    save(
+      album.copy(
+        artist = Artist.replaceDuplicate(artist).id.get
+      )
+    )
+  }
+  
   def getFirstAlbumYear: Int = DB.withConnection { implicit connection =>
     SQL(
       "select min(a.releaseDate) from Album a"

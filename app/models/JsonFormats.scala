@@ -3,7 +3,7 @@ package models
 import play.api.libs.json._
 import play.api.libs.json.Generic._
 
-import anorm.{Id, Pk}
+import anorm.{Id, Pk, NotAssigned}
 import java.util.Date
 
 import models._
@@ -14,7 +14,7 @@ object JsonFormats {
   implicit val pkLongFormat = new Format[Pk[Long]] {
     def reads(json: JsValue) = json match {
       case JsNumber(num) => Id(num.longValue)
-      case _ => throw new RuntimeException("number expected")
+      case _ => NotAssigned
     }
 
     def writes(o: Pk[Long]) = JsNumber(o.get)
@@ -48,13 +48,17 @@ object JsonFormats {
     def reads(json: JsValue) = json match {
       case o: JsObject => (
         Album(
-          fromJson[Pk[Long]](o \ "id"),
+          NotAssigned,
+//          fromJson[Pk[Long]](o \ "id"),
           fromJson[String](o \ "name"),
-          fromJson[Long](o \ "artist" \ "id"),
+          0,
+//          fromJson[Long](o \ "artist" \ "id"),
           fromJson[Date](o \ "releaseDate"),
           fromJson[Genre](o \ "genre"),
-          fromJson[Int](o \ "nbVotes"),
-          fromJson[Boolean](o \ "hasCover")
+          0,
+          false
+//          fromJson[Int](o \ "nbVotes"),
+//          fromJson[Boolean](o \ "hasCover")
         ),
         fromJson[Artist](o \ "artist")
       )
