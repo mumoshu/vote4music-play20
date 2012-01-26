@@ -49,9 +49,9 @@
             <label for="@field.name">Genre:</label>
             <select id="@field.name" name="@field.name">
                 @models.Genre.values.map { genre =>
-                    @if(genre.toString == field.value.get) {
-                        <option value="@genre.toString" selected="selected">@genre.toString().toLowerCase()</option>
-                    } else {
+                    @field.value.map { case v =>
+                        <option value="@genre.toString" @if(v == genre.toString){selected="selected"}>@genre.toString().toLowerCase()</option>
+                    }.getOrElse {
                         <option value="@genre.toString">@genre.toString().toLowerCase()</option>
                     }
                 }
