@@ -94,7 +94,20 @@ object Album {
       } *
     ).filter(_._1.releaseYear == year)
   }
-  
+
+  /**
+   * Filter by year (Originally a LambdaJ example)
+   *
+   * @param albums
+   * @param year
+   * @return
+   */
+  def filterByYear(albums: List[Album], year: String): List[Album] = albums.filter((_.releaseYear == year))
+
+  /**
+   * @param name
+   * @return found albums
+   */
   def findAll(name: String): List[Album] = DB.withConnection { implicit connection =>
     SQL(
       "select * from album where name like {name} limit {limit}"
