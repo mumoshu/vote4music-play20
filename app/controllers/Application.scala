@@ -5,7 +5,7 @@ import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
 import play.api.http.ContentTypes
-import play.api.libs.json._
+import play.api.libs.json.Json._
 import play.api.libs.json.Reads._
 import play.api.libs.json.Writes._
 import play.api.Play.current
