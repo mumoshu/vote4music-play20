@@ -9,6 +9,8 @@ object ApplicationBuild extends Build {
 
     val furyu = Resolver.url("Furyu", url("http://furyu.github.com/repo/"))(Resolver.ivyStylePatterns)
 
+    resolvers += furyu
+
     val appDependencies = Seq(
       // Add your project dependencies here,
     )
