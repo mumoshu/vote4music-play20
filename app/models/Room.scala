@@ -4,10 +4,10 @@ import akka.actor._
 import akka.util.duration._
 
 import play.api.libs.iteratee._
-
 import play.api.libs.concurrent._
-import play.api.libs.concurrent.Akka
-import play.api.libs.concurrent.Promise
+
+import akka.util.Timeout
+import akka.pattern.ask
 
 import play.api.Play.current
 
@@ -22,7 +22,7 @@ class Room extends Actor {
 
   def receive = {
     case Join(id) => {
-      val channel = new PushEnumerator[String]
+      val channel = Enumerator.imperative[String]()
       members += (id -> channel)
       sender ! Connected(channel)
     }
@@ -41,6 +41,8 @@ object Room {
   var joined = 0
 
   lazy val defaultRoom = Akka.system.actorOf(Props[Room])
+  
+  implicit val timeout = Timeout(1 second)
 
   def join(): Promise[(Iteratee[String, _], Enumerator[String])] = {
     joined += 1
