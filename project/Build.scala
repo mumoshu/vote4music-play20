@@ -7,6 +7,8 @@ object ApplicationBuild extends Build {
     val appName         = "vote4music"
     val appVersion      = "1.0"
 
+    resolvers += "Typesafe Snapshots Repository" at "http://repo.typesafe.com/typesafe/snapshots"
+
     val appDependencies = Seq(
     )
 
